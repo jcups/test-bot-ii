@@ -1,0 +1,13 @@
+server:
+  port: ${PORT}
+
+telegram_bot:
+  username: ${BOT_NAME}
+  token: ${BOT_TOKEN}
+  webhook_path: https://6097-46-53-250-203.ngrok.io
+giphy:
+  key: ${GIPHY_KEY}
+openexchangerates:
+  key: ${OPEXR_KEY}
+unsplash:
+  access_key: ${UNSPLASH_KEY}
