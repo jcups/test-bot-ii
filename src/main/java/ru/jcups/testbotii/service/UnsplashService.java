@@ -35,7 +35,7 @@ public class UnsplashService {
 
     public void getRandom(String chatId, AbsSender sender) {
         UnsplashImagePojo pojo = client.getRandom(accessKey);
-        File file = FUtils.saveFile(pojo.getUrls().get("regular"), ".jpg");
+        File file = FUtils.saveFile(pojo.getUrls().get("full"), ".jpg");
         try {
             if (file == null) {
                 sender.execute(new SendMessage(chatId, Messages.ERROR_SENDING_FILE));
@@ -45,6 +45,15 @@ public class UnsplashService {
                     sendPhoto.setCaption(pojo.getDescription());
                 sender.execute(sendPhoto);
             }
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+            sendRegularPhoto(chatId, sender, FUtils.saveFile(pojo.getUrls().get("regular"), ".jpg"));
+        }
+    }
+
+    private void sendRegularPhoto(String chatId, AbsSender sender, File regular) {
+        try {
+            sender.execute(new SendPhoto(chatId, new InputFile(regular)));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
