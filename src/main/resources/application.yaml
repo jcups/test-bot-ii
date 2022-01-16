@@ -4,7 +4,7 @@ server:
 telegram_bot:
   username: ${BOT_NAME}
   token: ${BOT_TOKEN}
-  webhook_path: https://6097-46-53-250-203.ngrok.io
+  webhook_path: ${BOT_PATH}
 giphy:
   key: ${GIPHY_KEY}
 openexchangerates:
