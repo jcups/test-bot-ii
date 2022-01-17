@@ -21,7 +21,7 @@ public class ScheduledTask {
         this.bot = bot;
     }
 
-    @Scheduled(fixedRate = 1500000)
+    @Scheduled(fixedRate = 1800000)
     public void reportCurrentTime() {
         ratesService.sendCurrencies("311199801", new String[]{}, bot);
         System.out.println("Send rates to Master: "+sdf.format(new Date()));
