@@ -67,29 +67,34 @@ public class TelegramBot extends TelegramWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        if (update.hasCallbackQuery()) {
-            System.out.println("onWebhookUpdateReceived() with callback: " + update.getCallbackQuery().getData() +
-                    "\nfrom: "+update.getCallbackQuery().getFrom().getUserName());
-            callbackHandler.handle(update.getCallbackQuery(), this);
-            return null;
-        } else if (update.hasMessage()) {
-            System.out.println("onWebhookUpdateReceived() with message: " + update.getMessage().getText() +
-                    "\nfrom: "+update.getMessage().getChat().getUserName());
-            Message message = update.getMessage();
-            if (message.isCommand()) {
-                if (!this.commandRegistry.executeCommand(this, message)) {
-                    this.processInvalidCommandUpdate(update);
+        try {
+            if (update.hasCallbackQuery()) {
+                System.out.println("onWebhookUpdateReceived() with callback: " + update.getCallbackQuery().getData() +
+                        "\nfrom: " + update.getCallbackQuery().getFrom().getUserName());
+                callbackHandler.handle(update.getCallbackQuery(), this);
+                return null;
+            } else if (update.hasMessage()) {
+                System.out.println("onWebhookUpdateReceived() with message: " + update.getMessage().getText() +
+                        "\nfrom: " + update.getMessage().getChat().getUserName());
+                Message message = update.getMessage();
+                if (message.isCommand()) {
+                    if (!this.commandRegistry.executeCommand(this, message)) {
+                        this.processInvalidCommandUpdate(update);
+                    }
+                    return null;
                 }
+            } else if (update.hasInlineQuery()) {
+                System.out.println("onWebhookUpdateReceived() with inlineQuery: " + update.getInlineQuery().getQuery() +
+                        "\nfrom: " + update.getInlineQuery().getFrom().getUserName());
+                inlineQueryHandler.handle(update.getInlineQuery(), this);
                 return null;
             }
-        } else if (update.hasInlineQuery()){
-            System.out.println("onWebhookUpdateReceived() with inlineQuery: " + update.getInlineQuery().getQuery() +
-                    "\nfrom: "+update.getInlineQuery().getFrom().getUserName());
-            inlineQueryHandler.handle(update.getInlineQuery(), this);
+            this.processNonCommandUpdate(update);
+            return null;
+        } catch (NullPointerException e){
+            System.out.println(e.getMessage());
             return null;
         }
-        this.processNonCommandUpdate(update);
-        return null;
     }
 
     protected void processInvalidCommandUpdate(Update update) {
