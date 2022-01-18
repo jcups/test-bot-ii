@@ -24,8 +24,16 @@ public class MessageHandler {
 
         if (msg.matches("\\d{3}\\d{3}") || msg.matches("\\d{3}.\\d{3}")) {
             departments(message, sender, msg);
-        } else if (msg.matches("\\d{2,4} \\d{2} \\d{2}")) {
+        } else if (msg.matches("\\d{1,4}.?\\d{1,2}.?\\d{1,2}")) {
             calendars(message, sender, msg);
+        }else {
+            try {
+                sender.execute(SendMessage.builder()
+                        .chatId(message.getChatId().toString())
+                        .text(Messages.INCORRECT_INPUT).build());
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -42,20 +50,31 @@ public class MessageHandler {
     }
 
     private ReplyKeyboard getCalendarMarkup(String msg) {
-        return new InlineKeyboardMarkup(List.of(
+        return new InlineKeyboardMarkup(
                 List.of(
-                        InlineKeyboardButton.builder()
-                                .text("Japan 1").callbackData("date japan 1 " + msg).build(),
-                        InlineKeyboardButton.builder()
-                                .text("Japan 2").callbackData("date japan 2 " + msg).build(),
-                        InlineKeyboardButton.builder()
-                                .text("Japan 3").callbackData("date japan 3 " + msg).build()),
-                List.of(
-                        InlineKeyboardButton.builder()
-                                .text("Taiwan 1").callbackData("date taiwan 1 " + msg).build(),
-                        InlineKeyboardButton.builder()
-                                .text("Taiwan 2").callbackData("date taiwan 2 " + msg).build())
-        ));
+                        List.of(
+                                InlineKeyboardButton.builder()
+                                        .text("Japan Reiwa 令和")
+                                        .callbackData("date japan reiwa " + msg).build(),
+                                InlineKeyboardButton.builder()
+                                        .text("Japan Heisei 平成")
+                                        .callbackData("date japan heisei " + msg).build(),
+                                InlineKeyboardButton.builder()
+                                        .text("Japan Showa 昭和")
+                                        .callbackData("date japan showa " + msg).build()),
+                        List.of(
+                                InlineKeyboardButton.builder()
+                                        .text("Taiwan")
+                                        .callbackData("date taiwan date " + msg).build(),
+                                InlineKeyboardButton.builder()
+                                        .text("Thailand")
+                                        .callbackData("date thailand date " + msg).build()),
+                        List.of(
+                                InlineKeyboardButton.builder()
+                                        .text("Russian expiration dates")
+                                        .callbackData("date russia date " + msg).build()
+                        )
+                ));
     }
 
     private void departments(Message message, AbsSender sender, String msg) {

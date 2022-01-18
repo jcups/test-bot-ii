@@ -1,5 +1,6 @@
 package ru.jcups.testbotii.model;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.CommandRegistry;
@@ -8,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.jcups.testbotii.api.telegram.TelegramClient;
 import ru.jcups.testbotii.config.BotConfig;
 import ru.jcups.testbotii.handlers.CallbackHandler;
 import ru.jcups.testbotii.handlers.MessageHandler;
@@ -29,10 +31,15 @@ public class TelegramBot extends TelegramWebhookBot {
 
     public TelegramBot(BotConfig botConfig, MessageHandler messageHandler,
                        GiphyService giphyService, UnsplashService unsplashService,
-                       OpenExchangeRatesService ratesService, CallbackHandler callbackHandler) {
+                       OpenExchangeRatesService ratesService, CallbackHandler callbackHandler,
+                       TelegramClient telegramClient) {
         this.botConfig = botConfig;
         this.messageHandler = messageHandler;
         this.callbackHandler = callbackHandler;
+
+        if (telegramClient.setWebhook(getBotToken(), getBotPath()).getStatusCode() == HttpStatus.OK)
+            System.out.println("successfully set webhookPath");
+
         this.commandRegistry = new CommandRegistry(true, this::getBotUsername);
 
         commandRegistry.register(new GifCommand(giphyService));

@@ -46,13 +46,22 @@ public class CallbackHandler {
                     date = calendarHelper.getJapanDate(type, inputDate);
                     break;
                 case "taiwan":
-                    date = calendarHelper.getTaiwanDate(type, inputDate);
+                    date = calendarHelper.getTaiwanDate(inputDate);
                     break;
-                case "nepal":
-                    date = calendarHelper.getNepalDate(type, inputDate);
+                case "thailand":
+                    date = calendarHelper.getThailandDate(inputDate);
                     break;
+                case "russia":
+                    String[] dates = calendarHelper.getRussianExpirationDates(inputDate);
+                    if (dates.length >= 1) {
+                        for (String d : dates) {
+                            sender.execute(SendMessage.builder()
+                                    .chatId(message.getChatId().toString())
+                                    .text(d).build());
+                        }
+                    }
+                    return;
             }
-
             sender.execute(SendMessage.builder()
                     .chatId(message.getChatId().toString())
                     .text(date).build());
