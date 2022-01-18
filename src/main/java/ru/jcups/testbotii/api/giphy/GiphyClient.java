@@ -13,4 +13,7 @@ public interface GiphyClient {
     @GetMapping("/gifs/random?api_key={api_key}&tag={tag}")
     GiphyRandomPojo getRandomByTag(@PathVariable String api_key, @PathVariable String tag);
 
+    @GetMapping("/gifs/search?api_key={api_key}&q={q}&limit=50")
+    GiphySearchPojo searchByTag(@PathVariable String api_key, @PathVariable String q);
+
 }

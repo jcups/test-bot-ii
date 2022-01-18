@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.jcups.testbotii.api.telegram.TelegramClient;
 import ru.jcups.testbotii.config.BotConfig;
 import ru.jcups.testbotii.handlers.CallbackHandler;
+import ru.jcups.testbotii.handlers.InlineQueryHandler;
 import ru.jcups.testbotii.handlers.MessageHandler;
 import ru.jcups.testbotii.handlers.command.CurrenciesCommand;
 import ru.jcups.testbotii.handlers.command.GifCommand;
@@ -27,15 +28,17 @@ public class TelegramBot extends TelegramWebhookBot {
     private final BotConfig botConfig;
     private final MessageHandler messageHandler;
     private final CallbackHandler callbackHandler;
+    private final InlineQueryHandler inlineQueryHandler;
     private final CommandRegistry commandRegistry;
 
     public TelegramBot(BotConfig botConfig, MessageHandler messageHandler,
                        GiphyService giphyService, UnsplashService unsplashService,
                        OpenExchangeRatesService ratesService, CallbackHandler callbackHandler,
-                       TelegramClient telegramClient) {
+                       TelegramClient telegramClient, InlineQueryHandler inlineQueryHandler) {
         this.botConfig = botConfig;
         this.messageHandler = messageHandler;
         this.callbackHandler = callbackHandler;
+        this.inlineQueryHandler = inlineQueryHandler;
 
         if (telegramClient.setWebhook(getBotToken(), getBotPath()).getStatusCode() == HttpStatus.OK)
             System.out.println("successfully set webhookPath");
@@ -65,10 +68,13 @@ public class TelegramBot extends TelegramWebhookBot {
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         if (update.hasCallbackQuery()) {
+            System.out.println("onWebhookUpdateReceived() with callback: " + update.getCallbackQuery().getData() +
+                    "\nfrom: "+update.getCallbackQuery().getFrom().getUserName());
             callbackHandler.handle(update.getCallbackQuery(), this);
             return null;
         } else if (update.hasMessage()) {
-            System.out.println("onWebhookUpdateReceived() with message: " + update.getMessage().getText());
+            System.out.println("onWebhookUpdateReceived() with message: " + update.getMessage().getText() +
+                    "\nfrom: "+update.getMessage().getChat().getUserName());
             Message message = update.getMessage();
             if (message.isCommand()) {
                 if (!this.commandRegistry.executeCommand(this, message)) {
@@ -76,6 +82,11 @@ public class TelegramBot extends TelegramWebhookBot {
                 }
                 return null;
             }
+        } else if (update.hasInlineQuery()){
+            System.out.println("onWebhookUpdateReceived() with inlineQuery: " + update.getInlineQuery().getQuery() +
+                    "\nfrom: "+update.getInlineQuery().getFrom().getUserName());
+            inlineQueryHandler.handle(update.getInlineQuery(), this);
+            return null;
         }
         this.processNonCommandUpdate(update);
         return null;
