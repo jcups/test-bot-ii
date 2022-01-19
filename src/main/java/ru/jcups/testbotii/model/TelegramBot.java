@@ -21,6 +21,7 @@ import ru.jcups.testbotii.handlers.command.PhotoCommand;
 import ru.jcups.testbotii.service.GiphyService;
 import ru.jcups.testbotii.service.OpenExchangeRatesService;
 import ru.jcups.testbotii.service.UnsplashService;
+import ru.jcups.testbotii.utils.StatisticUtils;
 
 @Component
 public class TelegramBot extends TelegramWebhookBot {
@@ -67,6 +68,7 @@ public class TelegramBot extends TelegramWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+        StatisticUtils.ctrl(update, this);
         try {
             if (update.hasCallbackQuery()) {
                 System.out.println("onWebhookUpdateReceived() with callback: " + update.getCallbackQuery().getData() +
