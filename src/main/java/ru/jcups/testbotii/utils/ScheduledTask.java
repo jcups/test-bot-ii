@@ -29,7 +29,7 @@ public class ScheduledTask {
         System.out.println("Send rates to Master: "+sdf.format(new Date()));
     }
 
-    @Scheduled(cron = "0 0 21 * * *")
+    @Scheduled(cron = "0 15 18 * * *")
     public void reportStatistic() {
         try {
             bot.execute(new SendMessage("311199801", StatisticUtils.getStatistic()));
