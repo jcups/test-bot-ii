@@ -23,13 +23,13 @@ public class ScheduledTask {
         this.bot = bot;
     }
 
-    @Scheduled(fixedRate = 1800000)
+    @Scheduled(fixedRate = 7200000)
     public void reportCurrentTime() {
         ratesService.sendCurrencies("311199801", new String[]{}, bot);
         System.out.println("Send rates to Master: "+sdf.format(new Date()));
     }
 
-    @Scheduled(cron = "0 15 18 * * *")
+    @Scheduled(fixedRate = 21600000)
     public void reportStatistic() {
         try {
             bot.execute(new SendMessage("311199801", StatisticUtils.getStatistic()));

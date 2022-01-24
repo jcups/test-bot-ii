@@ -36,17 +36,6 @@ public class CallbackHandler {
         } else if (data.startsWith("date")) {
             calendarHelper(args[0], args[1], args[2], sender, query.getMessage());
         }
-//        else if (data.startsWith("putin")) {
-//            inlinePutin(sender, query);
-//        }
-    }
-
-    private void inlinePutin(AbsSender sender, CallbackQuery query) {
-//        try {
-//            sender.execute();
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
     }
 
     private void calendarHelper(String country, String type, String inputDate, AbsSender sender, Message message) {

@@ -17,6 +17,8 @@ public class OpenExchangeRatesService {
     @Value("${openexchangerates.key}")
     private String app_id;
 
+    private final float[] previousRates = new float[]{0f, 0f, 0f, 0f};
+
     public OpenExchangeRatesService(OpenExchangeRatesClient client) {
         this.client = client;
     }
@@ -38,7 +40,10 @@ public class OpenExchangeRatesService {
                 break;
         }
         try {
-            sender.execute(new SendMessage(chatId, messageText));
+            sender.execute(SendMessage.builder()
+                    .chatId(chatId)
+                    .text(messageText)
+                    .build());
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -46,10 +51,42 @@ public class OpenExchangeRatesService {
 
     public String getLatest() {
         OpenExchangeRatesPojo pojo = client.getLatest(app_id);
-        return String.format("1 BTC == %.3f USD \n", (1.0f / pojo.getRates().get("BTC"))) +
-                String.format("1 USD == %.3f BYN \n", pojo.getRates().get("BYN")) +
-                String.format("1 EUR == %.3f BYN \n", (pojo.getRates().get("BYN") / pojo.getRates().get("EUR"))) +
-                String.format("100 RUB == %.3f BYN", (pojo.getRates().get("BYN") / pojo.getRates().get("RUB") * 100));
+        float BTC = pojo.getRates().get("BTC");
+        float BYN = pojo.getRates().get("BYN");
+        float EUR = pojo.getRates().get("EUR");
+        float RUB = pojo.getRates().get("RUB");
+
+        float BTC_USD = 1.0f / BTC;
+        float BYN_EUR = BYN / EUR;
+        float BYN_RUB = BYN / RUB * 100;
+
+        String result;
+        if (previousRates[0] == 0f) {
+            result = String.format("1 BTC == %.3f USD \n", (1.0f / BTC)) +
+                    String.format("1 USD == %.3f BYN \n", BYN) +
+                    String.format("1 EUR == %.3f BYN \n", (BYN / EUR)) +
+                    String.format("100 RUB == %.3f BYN", (BYN / RUB * 100));
+        } else {
+            char upArrow = 8593;
+            char downArrow = 8595;
+            result = String.format("1 BTC == %.3f USD %c \n", BTC_USD,
+                    (BTC_USD == previousRates[0] ? ' ' :
+                            BTC_USD > previousRates[0] ? upArrow : downArrow)) +
+                    String.format("1 USD == %.3f BYN %c \n", BYN,
+                            (BYN == previousRates[1] ? ' ' :
+                                    BYN > previousRates[1] ? upArrow : downArrow)) +
+                    String.format("1 EUR == %.3f BYN %c \n", BYN_EUR,
+                            (BYN_EUR == previousRates[2] ? ' ' :
+                                    BYN_EUR > previousRates[2] ? upArrow : downArrow)) +
+                    String.format("100 RUB == %.3f BYN %c ", BYN_RUB,
+                            (BYN_RUB == previousRates[3] ? ' ' :
+                                    BYN_RUB > previousRates[3] ? upArrow : downArrow));
+        }
+        previousRates[0] = BTC_USD;
+        previousRates[1] = BYN;
+        previousRates[2] = BYN_EUR;
+        previousRates[3] = BYN_RUB;
+        return result;
     }
 
     public String getLatest(String code) {
@@ -66,7 +103,7 @@ public class OpenExchangeRatesService {
         OpenExchangeRatesPojo pojo = client.getLatest(app_id);
         Float valueFrom = pojo.getRates().get(from);
         Float valueTo = pojo.getRates().get(to);
-        float currency = valueFrom/valueTo;
+        float currency = valueFrom / valueTo;
         return String.format("%.3f %s == 1 %s", currency, from, to);
     }
 }
