@@ -103,7 +103,8 @@ public class MessageHandler {
 
     private void sendDepartments(Message message, AbsSender sender, String code) {
         System.out.println(code);
-        String[] departments = CF.get(code);
+        String[] split = code.split("-");
+        String[] departments = CF.get(split[0], split[1]);
         try {
             if (departments != null) {
                 for (String department : departments)
